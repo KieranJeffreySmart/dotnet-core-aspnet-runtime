@@ -77,11 +77,11 @@ api = "0.8"
     id = "dotnet-core-aspnet-runtime"
     name = "ASP.NET Core Runtime"
     licenses = ["MIT", "MIT-0"]
-    checksum = "sha512:101898d0921f21c7895a1e015064a5aa5f1ca92bd31bd0d30fb9981e3c4383f14ea25464289e4ef29bf55fea1e2096e4b07bce71c948992a76c5ff0f7005b415"
-    source = "https://download.visualstudio.microsoft.com/download/pr/90a3ef50-f7fa-46d7-8839-1ad7a2d64945/ff0d7ad5aef915e19eb255d708a94a07/aspnetcore-runtime-7.0.0-rc.1.22427.2-linux-x64.tar.gz"
-    source-checksum = "sha512:101898d0921f21c7895a1e015064a5aa5f1ca92bd31bd0d30fb9981e3c4383f14ea25464289e4ef29bf55fea1e2096e4b07bce71c948992a76c5ff0f7005b415"
+    checksum = "sha512:1941cd6ea3bea31d970029c34acf0d60b63d1e7fba39086be1a79177a6f87f2b0300bf4008e96a5235d52bc74a41503b21b088143cd306058d42dd3ce8252af0"
+    source = "https://download.visualstudio.microsoft.com/download/pr/eda5c509-4e42-48b7-95dc-0584b0645d20/2e6219b8fc0873628b9cd8fe9c726b0c/aspnetcore-runtime-7.0.0-rc.2.22476.2-linux-x64.tar.gz"
+    source-checksum = "sha512:1941cd6ea3bea31d970029c34acf0d60b63d1e7fba39086be1a79177a6f87f2b0300bf4008e96a5235d52bc74a41503b21b088143cd306058d42dd3ce8252af0"
     stacks = ["io.buildpacks.stacks.bionic", "io.buildpacks.stacks.jammy"]
-    uri = "https://download.visualstudio.microsoft.com/download/pr/90a3ef50-f7fa-46d7-8839-1ad7a2d64945/ff0d7ad5aef915e19eb255d708a94a07/aspnetcore-runtime-7.0.0-rc.1.22427.2-linux-x64.tar.gz"
+    uri = "https://download.visualstudio.microsoft.com/download/pr/eda5c509-4e42-48b7-95dc-0584b0645d20/2e6219b8fc0873628b9cd8fe9c726b0c/aspnetcore-runtime-7.0.0-rc.2.22476.2-linux-x64.tar.gz"
     version = "7.0.1"
 
   [[metadata.dependency-constraints]]
