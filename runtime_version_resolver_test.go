@@ -70,6 +70,20 @@ func testRuntimeVersionResolver(t *testing.T, context spec.G, it spec.S) {
     stacks = ["some-stack"]
     uri = "some-uri"
     version = "2.2.4"
+
+  [[metadata.dependencies]]
+    id = "dotnet-core-aspnet-runtime"
+    sha256 = "some-sha"
+    stacks = ["some-stack"]
+    uri = "some-uri"
+    version = "2.2.4-rc.1"
+
+  [[metadata.dependencies]]
+	  id = "dotnet-core-aspnet-runtime"
+	  sha256 = "some-sha"
+	  stacks = ["some-stack"]
+	  uri = "some-uri"
+	  version = "2.2.5-rc.1"
 `), 0600)
 		Expect(err).NotTo(HaveOccurred())
 
@@ -156,7 +170,7 @@ func testRuntimeVersionResolver(t *testing.T, context spec.G, it spec.S) {
 			})
 			it("returns a compatible version", func() {
 				_, err := versionResolver.Resolve(buildpackToml, entry, "some-stack")
-				Expect(err).To(MatchError(ContainSubstring(`failed to satisfy "dotnet-core-aspnet-runtime" dependency for stack "some-stack" with version constraint "2.2.0": no compatible versions. Supported versions are: [1.2.2, 2.2.3, 2.2.4]. This may be due to BP_DOTNET_ROLL_FORWARD=Disable`)))
+				Expect(err).To(MatchError(ContainSubstring(`failed to satisfy "dotnet-core-aspnet-runtime" dependency for stack "some-stack" with version constraint "2.2.0": no compatible versions. Supported versions are: [1.2.2, 2.2.3, 2.2.4, 2.2.4-rc.1, 2.2.5-rc.1]. This may be due to BP_DOTNET_ROLL_FORWARD=Disable`)))
 			})
 		})
 
@@ -185,7 +199,7 @@ func testRuntimeVersionResolver(t *testing.T, context spec.G, it spec.S) {
 				})
 				it("returns an error", func() {
 					_, err := versionResolver.Resolve(buildpackToml, entry, "some-stack")
-					Expect(err).To(MatchError(ContainSubstring(`failed to satisfy "dotnet-core-aspnet-runtime" dependency for stack "some-stack" with version constraint "3.0.0": no compatible versions. Supported versions are: [1.2.2, 2.2.3, 2.2.4]`)))
+					Expect(err).To(MatchError(ContainSubstring(`failed to satisfy "dotnet-core-aspnet-runtime" dependency for stack "some-stack" with version constraint "3.0.0": no compatible versions. Supported versions are: [1.2.2, 2.2.3, 2.2.4, 2.2.4-rc.1, 2.2.5-rc.1]`)))
 					Expect(err).NotTo(MatchError(ContainSubstring(`. This may be due to BP_DOTNET_ROLL_FORWARD=Disable`)))
 				})
 			})
@@ -196,7 +210,7 @@ func testRuntimeVersionResolver(t *testing.T, context spec.G, it spec.S) {
 				})
 				it("returns an error", func() {
 					_, err := versionResolver.Resolve(buildpackToml, entry, "some-stack")
-					Expect(err).To(MatchError(ContainSubstring(`failed to satisfy "dotnet-core-aspnet-runtime" dependency for stack "some-stack" with version constraint "2.3.0": no compatible versions. Supported versions are: [1.2.2, 2.2.3, 2.2.4]`)))
+					Expect(err).To(MatchError(ContainSubstring(`failed to satisfy "dotnet-core-aspnet-runtime" dependency for stack "some-stack" with version constraint "2.3.0": no compatible versions. Supported versions are: [1.2.2, 2.2.3, 2.2.4, 2.2.4-rc.1, 2.2.5-rc.1]`)))
 				})
 			})
 
@@ -206,7 +220,7 @@ func testRuntimeVersionResolver(t *testing.T, context spec.G, it spec.S) {
 				})
 				it("returns an error", func() {
 					_, err := versionResolver.Resolve(buildpackToml, entry, "some-stack")
-					Expect(err).To(MatchError(ContainSubstring(`failed to satisfy "dotnet-core-aspnet-runtime" dependency for stack "some-stack" with version constraint "2.2.5": no compatible versions. Supported versions are: [1.2.2, 2.2.3, 2.2.4]`)))
+					Expect(err).To(MatchError(ContainSubstring(`failed to satisfy "dotnet-core-aspnet-runtime" dependency for stack "some-stack" with version constraint "2.2.5": no compatible versions. Supported versions are: [1.2.2, 2.2.3, 2.2.4, 2.2.4-rc.1, 2.2.5-rc.1]`)))
 				})
 			})
 		})
@@ -236,6 +250,7 @@ func testRuntimeVersionResolver(t *testing.T, context spec.G, it spec.S) {
 			it.Before(func() {
 				entry.Metadata["version"] = "2.1.*"
 			})
+
 			it("allows patch and minor version rollforward", func() {
 				dependency, err := versionResolver.Resolve(buildpackToml, entry, "some-stack")
 				Expect(err).NotTo(HaveOccurred())
@@ -243,6 +258,63 @@ func testRuntimeVersionResolver(t *testing.T, context spec.G, it spec.S) {
 				Expect(dependency).To(Equal(postal.Dependency{
 					ID:      "dotnet-core-aspnet-runtime",
 					Version: "2.2.4",
+					URI:     "some-uri",
+					SHA256:  "some-sha",
+					Stacks:  []string{"some-stack"},
+				}))
+			})
+		})
+
+		context("the version has a prereleasse wildcard", func() {
+			it.Before(func() {
+				entry.Metadata["version"] = "2.2.4-0"
+			})
+
+			it("returns latest prerelease version", func() {
+				dependency, err := versionResolver.Resolve(buildpackToml, entry, "some-stack")
+				Expect(err).NotTo(HaveOccurred())
+
+				Expect(dependency).To(Equal(postal.Dependency{
+					ID:      "dotnet-core-aspnet-runtime",
+					Version: "2.2.5-rc.1",
+					URI:     "some-uri",
+					SHA256:  "some-sha",
+					Stacks:  []string{"some-stack"},
+				}))
+			})
+		})
+
+		context("the version has a release candidate", func() {
+			it.Before(func() {
+				entry.Metadata["version"] = "2.2.4-rc.1"
+			})
+
+			it("rolls forward the release candidate version", func() {
+				dependency, err := versionResolver.Resolve(buildpackToml, entry, "some-stack")
+				Expect(err).NotTo(HaveOccurred())
+
+				Expect(dependency).To(Equal(postal.Dependency{
+					ID:      "dotnet-core-aspnet-runtime",
+					Version: "2.2.4-rc.1",
+					URI:     "some-uri",
+					SHA256:  "some-sha",
+					Stacks:  []string{"some-stack"},
+				}))
+			})
+		})
+
+		context("the version rolls forward to the latest release candidate", func() {
+			it.Before(func() {
+				entry.Metadata["version"] = "2.2.4-rc.0"
+			})
+
+			it("rolls forward the release candidate version", func() {
+				dependency, err := versionResolver.Resolve(buildpackToml, entry, "some-stack")
+				Expect(err).NotTo(HaveOccurred())
+
+				Expect(dependency).To(Equal(postal.Dependency{
+					ID:      "dotnet-core-aspnet-runtime",
+					Version: "2.2.5-rc.1",
 					URI:     "some-uri",
 					SHA256:  "some-sha",
 					Stacks:  []string{"some-stack"},
@@ -295,7 +367,7 @@ func testRuntimeVersionResolver(t *testing.T, context spec.G, it spec.S) {
 			})
 			it("returns an error", func() {
 				_, err := versionResolver.Resolve(buildpackToml, entry, "some-stack")
-				Expect(err).To(MatchError(ContainSubstring(`failed to satisfy "dotnet-core-aspnet-runtime" dependency for stack "some-stack" with version constraint "2.2.0": no compatible versions. Supported versions are: [1.2.2, 2.2.3, 2.2.4]`)))
+				Expect(err).To(MatchError(ContainSubstring(`failed to satisfy "dotnet-core-aspnet-runtime" dependency for stack "some-stack" with version constraint "2.2.0": no compatible versions. Supported versions are: [1.2.2, 2.2.3, 2.2.4, 2.2.4-rc.1, 2.2.5-rc.1]`)), "actual error: %d", err)
 			})
 		})
 
@@ -305,7 +377,7 @@ func testRuntimeVersionResolver(t *testing.T, context spec.G, it spec.S) {
 			})
 			it("attempts to turn the given versions into the only constraint", func() {
 				dependency, err := versionResolver.Resolve(buildpackToml, entry, "some-stack")
-				Expect(err).NotTo(HaveOccurred())
+				Expect(err).NotTo(HaveOccurred(), "error: %d", err)
 
 				Expect(dependency).To(Equal(postal.Dependency{
 					ID:      "dotnet-core-aspnet-runtime",
@@ -313,7 +385,7 @@ func testRuntimeVersionResolver(t *testing.T, context spec.G, it spec.S) {
 					URI:     "some-uri",
 					SHA256:  "some-sha",
 					Stacks:  []string{"some-stack"},
-				}))
+				}), "actual dependency: %d", dependency)
 			})
 		})
 	})

@@ -72,8 +72,6 @@ api = "0.8"
     version = "6.0.9"
 
   [[metadata.dependencies]]
-    cpe = "cpe:2.3:a:microsoft:asp.net_core:7.0:*:*:*:*:*:*:*"
-    deprecation_date = "2024-11-08T00:00:00Z"
     id = "dotnet-core-aspnet-runtime"
     name = "ASP.NET Core Runtime"
     licenses = ["MIT", "MIT-0"]
@@ -82,7 +80,7 @@ api = "0.8"
     source-checksum = "sha512:1941cd6ea3bea31d970029c34acf0d60b63d1e7fba39086be1a79177a6f87f2b0300bf4008e96a5235d52bc74a41503b21b088143cd306058d42dd3ce8252af0"
     stacks = ["io.buildpacks.stacks.bionic", "io.buildpacks.stacks.jammy"]
     uri = "https://download.visualstudio.microsoft.com/download/pr/eda5c509-4e42-48b7-95dc-0584b0645d20/2e6219b8fc0873628b9cd8fe9c726b0c/aspnetcore-runtime-7.0.0-rc.2.22476.2-linux-x64.tar.gz"
-    version = "7.0.1"
+    version = "7.0.0-rc.2.22476.2"
 
   [[metadata.dependency-constraints]]
     constraint = "3.1.*"
@@ -94,10 +92,10 @@ api = "0.8"
     id = "dotnet-core-aspnet-runtime"
     patches = 2
 
-  [[metadata.dependency-constraints]]
-    constraint = "7.0.*"
-    id = "dotnet-core-aspnet-runtime"
-    patches = 2
+  #[[metadata.dependency-constraints]]
+  #  constraint = "7.*"
+  #  id = "dotnet-core-aspnet-runtime"
+  #  patches = 1
 
 [[stacks]]
   id = "io.buildpacks.stacks.bionic"

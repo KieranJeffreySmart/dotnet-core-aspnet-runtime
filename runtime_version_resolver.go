@@ -78,8 +78,10 @@ func (r RuntimeVersionResolver) Resolve(path string, entry packit.BuildpackPlanE
 				return postal.Dependency{}, err
 			}
 
-			if constraint.Check(depVersion) && preventRollback.Check(depVersion) {
-				compatibleDependencies = append(compatibleDependencies, dependency)
+			if preventRollback.Check(depVersion) {
+				if constraint.Check(depVersion) {
+					compatibleDependencies = append(compatibleDependencies, dependency)
+				}
 			}
 		}
 
@@ -134,11 +136,16 @@ func gatherVersionConstraints(version string, versionSource string, allowRollFor
 	if err != nil {
 		return nil, err
 	}
-	constraints = append(constraints, *runtimeConstraint)
 
 	// Don't add roll forward constraints if the version source is BP_DOTNET_FRAMEWORK_VERSION or buildpack.yml
 	// Don't add roll forward constraints if roll forward is not allowed (via `BP_DOTNET_ROLL_FORWARD=Disable`)
-	if versionSource != "BP_DOTNET_FRAMEWORK_VERSION" && allowRollForward {
+	var addRollForwardConstraints = versionSource != "BP_DOTNET_FRAMEWORK_VERSION" && allowRollForward
+
+	if match, _ := regexp.MatchString(`\d+\.\d+\.\d+-0$`, version); !match {
+		constraints = append(constraints, *runtimeConstraint)		
+	}
+
+	if addRollForwardConstraints {
 		// If version is 1.2.3 or 1.2.* but not 1.2 or 1.*
 		if match, _ := regexp.MatchString(`\d+\.\d+\.(\d+$|\*$)`, version); match {
 			runtimeVersion, err := semver.NewVersion(strings.TrimSuffix(version, `.*`))
@@ -157,6 +164,14 @@ func gatherVersionConstraints(version string, versionSource string, allowRollFor
 				return []semver.Constraints{}, err
 			}
 			constraints = append(constraints, *majorConstraint)
+		}
+
+		if match, _ := regexp.MatchString(`\d+\.\d+\.\d+-\S+$`, version); match {
+			prereleaseConstraint, err := semver.NewConstraint(fmt.Sprintf(">= %s", version))
+			if err != nil {
+				return []semver.Constraints{}, err
+			}
+			constraints = append(constraints, *prereleaseConstraint)
 		}
 	}
 	return constraints, nil
